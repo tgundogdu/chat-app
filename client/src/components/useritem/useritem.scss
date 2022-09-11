@@ -1,0 +1,32 @@
+.user-item {
+  transition: ease-in-out 0.2s;
+  border-radius: 3px;
+  //border-bottom: solid 1px #eeedde;
+  .center {
+    max-width: calc(100% - 70px);
+    padding-right: 10px;
+  }
+  .nowrap {
+    width: 100%;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+  &.selectable {
+    cursor: pointer;
+    &:hover {
+      background-color: #edeff0;
+    }
+    &.active {
+      background-color: #e5eaec;
+    }
+  }
+  &.disabled{
+    background-color: #e9e9e9 !important;
+    cursor: default;
+    .center {
+      opacity: .6;
+    }
+  }
+}

@@ -1,0 +1,75 @@
+.message {
+  margin-top: 10px;
+  padding-right: 20%;
+  text-align: left;
+  user-select: none;
+  .box {
+    position: relative;
+    border-top-left-radius: 0;
+    &::before {
+      content: "";
+      position: absolute;
+      left: -10px;
+      top: 0;
+      width: 0;
+      height: 0;
+      border-style: solid;
+      border-width: 0 10px 16px 0;
+      border-color: transparent #ffffff transparent transparent;
+    }
+    .images {
+      display: block;
+      margin: -4px;
+      img {
+        display: inline;
+        border-radius: 4px;
+        max-width: 100px;
+        margin: 4px;
+        vertical-align: top;
+        cursor: pointer;
+      }
+    }
+    .tick {
+      position: absolute;
+      left: 100%;
+      padding-left: 2px;
+      bottom: 0;
+      color: #999999;
+      white-space: nowrap;
+    }
+  }
+  &.right {
+    padding-right: 10px;
+    padding-left: 20%;
+    text-align: right;
+    .box {
+      position: relative;
+      border-top-left-radius: 8px;
+      border-top-right-radius: 0;
+      background-color: #d9f8c4;
+      &::before {
+        content: "";
+        position: absolute;
+        left: auto;
+        right: -10px;
+        top: 0;
+        width: 0;
+        height: 0;
+        border-style: solid;
+        border-width: 16px 10px 0 0;
+        border-color: #d9f8c4 transparent transparent transparent;
+      }
+    }
+  }
+
+  &.no-triangle {
+    margin-top: 2px;
+    .box {
+      border-top-left-radius: 8px;
+      border-top-right-radius: 8px;
+      &::before {
+        display: none;
+      }
+    }
+  }
+}

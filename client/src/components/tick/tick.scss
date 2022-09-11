@@ -1,0 +1,27 @@
+.message-tick {
+  width: 18px;
+  height: 12px;
+  position: relative;
+  display: inline-block;
+  overflow: hidden;
+  &.colored {
+    span {
+      border-color: #277bc0;
+    }
+  }
+  span {
+    position: absolute;
+    display: inline-block;
+    transform-origin: center;
+    transform: rotate(45deg);
+    height: 10px;
+    width: 4px;
+    left: 3px;
+    border-bottom: 2px solid #d0c9c0;
+    border-right: 2px solid #d0c9c0;
+    &.double {
+      left: 10px;
+      width: 3px;
+    }
+  }
+}

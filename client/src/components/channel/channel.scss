@@ -1,0 +1,57 @@
+.channel {
+  transition: ease-in-out 0.2s;
+  cursor: pointer;
+  border-top: solid 1px #eeedde;
+  &:last-child {
+    border-bottom: solid 1px #eeedde;
+  }
+  .info{
+    max-width: calc(100% - 60px);
+  }
+  .title {
+    position: relative;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+  .time-ago {
+    white-space: nowrap;
+  }
+  .last-message {
+    width: 100%;
+    opacity: .8;
+    white-space: nowrap;
+    overflow: hidden !important;
+    text-overflow: ellipsis;
+  }
+
+  &:hover {
+    background-color: #edeff0;
+  }
+  &.active {
+    background-color: #e5eaec;
+  }
+  &.unread {
+    .title {
+      font-weight: 700;
+    }
+    .time-ago {
+      color: #52bd95;
+    }
+    .last-message {
+      color: #333;
+      font-weight: 600;
+      opacity: 1;
+    }
+    .badge {
+      display: inline-block;
+      width: 10px;
+      height: 10px;
+      text-align: center;
+      background-color: #52bd95;
+      color: #ffffff;
+      line-height: 10px;
+      border-radius: 50%;
+    }
+  }
+}
