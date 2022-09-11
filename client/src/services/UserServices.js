@@ -9,7 +9,7 @@ class UserServices {
       );
       return result.data;
     } catch (error) {
-      throw error.response.data;
+      throw error;
     }
   };
   static getInfo = async () => {

@@ -34,10 +34,15 @@ const Login = () => {
         navigate("/");
       })
       .catch((error) => {
-        if (error.errors.length) {
-          setErrors(Helpers.validationErrorHandler(error.errors));
+        console.log(error);
+        if (error.response.data) {
+          if (error.response.data.errors.length > 0) {
+            setErrors(Helpers.validationErrorHandler(error.response.errors));
+          } else {
+            toaster.danger(error.response.data.message, { duration: 2 });
+          }
         } else {
-          toaster.danger(error.message, { duration: 2 });
+          toaster.danger(error.message);
         }
       });
   };
