@@ -39,7 +39,7 @@ const Userbar = () => {
         </Pane>
         <Pane flex={1} onClick={() => setIsProfileShown(true)}>
           <Pane>
-            <Text size={300}>Welcome, </Text>
+            <Text size={300}>{user._id}</Text>
             <Heading size={500}>{user.name}</Heading>
           </Pane>
         </Pane>

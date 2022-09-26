@@ -5,6 +5,6 @@ import channelSlice from "./features/channelSlice";
 export default configureStore({
   reducer: {
     auth: authSlice,
-    channel: channelSlice
+    channel: channelSlice,
   },
 });

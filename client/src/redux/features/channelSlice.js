@@ -28,9 +28,14 @@ export const channelSlice = createSlice({
     addMessage: (state, action) => {
       const { channelId, message } = action.payload;
       const index = state.data.findIndex((item) => item._id === channelId);
-      if (index > -1 && state.data[index].messages)
-        state.data[index].messages.push(message);
-      else {
+      if (index > -1 && state.data[index].messages) {
+        const messageIndex = state.data[index].messages.findIndex(
+          (msg) => msg._id === message._id
+        );
+        if (messageIndex < 0) {
+          state.data[index].messages.push(message);
+        }
+      } else {
         state.data[index].messages = [message];
       }
     },
@@ -54,6 +59,30 @@ export const channelSlice = createSlice({
         ].readDate = true;
       }
     },
+    setAcknowledge: (state, action) => {
+      const { channelId, messageId, receiverId, ack } = action.payload;
+      const channelIndex = state.data.findIndex(
+        (channel) => channel._id === channelId
+      );
+      const messageIndex = state.data[channelIndex].messages.findIndex(
+        (msg) => msg._id === messageId
+      );
+      const receiverIndex = state.data[channelIndex].messages[
+        messageIndex
+      ].info.findIndex((receiver) => receiver.receiverId === receiverId);
+
+      if (ack === "delivered") {
+        state.data[channelIndex].messages[messageIndex].info[
+          receiverIndex
+        ].deliveredDate = action.payload.deliveredDate;
+      } else if (ack === "readed") {
+        state.data[channelIndex].messages[messageIndex].info[
+          receiverIndex
+        ].readDate = action.payload.readDate;
+      } else {
+        console.error("ACK type error.");
+      }
+    },
   },
 });
 
@@ -66,6 +95,7 @@ export const {
   addMessage,
   setRecipients,
   setReaded,
+  setAcknowledge,
 } = channelSlice.actions;
 
 export default channelSlice.reducer;

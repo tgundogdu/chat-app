@@ -14,6 +14,7 @@ import { login } from "../redux/features/authSlice";
 import Helpers from "../utils/Helpers";
 import { useState } from "react";
 import { UserServices } from "../services";
+//import io from "../utils/socket";
 
 const Login = () => {
   const navigate = useNavigate();
@@ -31,18 +32,14 @@ const Login = () => {
     UserServices.login(loginCredentials)
       .then((response) => {
         dispatch(login(response));
+        //io.connect();
         navigate("/");
       })
       .catch((error) => {
-        console.log(error);
-        if (error.response.data) {
-          if (error.response.data.errors.length > 0) {
-            setErrors(Helpers.validationErrorHandler(error.response.errors));
-          } else {
-            toaster.danger(error.response.data.message, { duration: 2 });
-          }
+        if (error.errors.length) {
+          setErrors(Helpers.validationErrorHandler(error.errors));
         } else {
-          toaster.danger(error.message);
+          toaster.danger(error.message, { duration: 2 });
         }
       });
   };

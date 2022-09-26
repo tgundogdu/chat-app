@@ -1,10 +1,10 @@
 import { Navigate, Outlet } from "react-router-dom";
 import { useDispatch, useSelector } from "react-redux";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { login } from "../redux/features/authSlice";
-import { useEffect } from "react";
 import Loader from "../components/loader/Loader";
 import { UserServices } from "../services";
+//import io from "../utils/socket";
 
 const Protected = () => {
   const [status, setStatus] = useState("pending");
@@ -19,6 +19,7 @@ const Protected = () => {
       UserServices.getInfo()
         .then((response) => {
           dispatch(login(response));
+          //io.connect();
           setStatus("success");
         })
         .catch(() => {
@@ -30,9 +31,7 @@ const Protected = () => {
   }, [token, user, dispatch]);
 
   if (status === "pending") {
-    return (
-      <Loader show/>
-    );
+    return <Loader show />;
   } else if (status === "success") {
     return <Outlet />;
   } else {

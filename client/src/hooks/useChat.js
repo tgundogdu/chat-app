@@ -7,6 +7,7 @@ import {
   setReaded,
 } from "../redux/features/channelSlice";
 import { ChannelServices } from "../services";
+import socketio from "../utils/socket";
 
 const useChat = (channelId) => {
   const dispatch = useDispatch();
@@ -20,6 +21,7 @@ const useChat = (channelId) => {
   const sendMessage = (msg) => {
     ChannelServices.sendMessage({ channel: channelId, message: msg })
       .then((response) => {
+        socketio.emit("new_message", response.data);
         dispatch(addMessage({ channelId: channelId, message: response.data }));
       })
       .catch((error) => {
