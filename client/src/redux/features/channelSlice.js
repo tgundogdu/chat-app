@@ -44,23 +44,35 @@ export const channelSlice = createSlice({
       const index = state.data.findIndex((item) => item._id === channelId);
       state.data[index].recipients = recipients;
     },
-    setReaded: (state, action) => {
-      const { channelId, userId, msgIds } = action.payload;
-      const index = state.data.findIndex((item) => item._id === channelId);
-      for (const msgId of msgIds) {
-        const msgIndex = state.data[index].messages.findIndex(
-          (m) => m._id === msgId
-        );
-        const receiverIndex = state.data[index].messages[
-          msgIndex
-        ].info.findIndex((r) => r.receiverId === userId);
-        state.data[index].messages[msgIndex].info[
-          receiverIndex
-        ].readDate = true;
-      }
-    },
     setAcknowledge: (state, action) => {
-      const { channelId, messageId, receiverId, ack } = action.payload;
+      const { channel, receiver, type, date, messages } = action.payload;
+      if (messages.length >= 0) {
+        const channelIndex = state.data.findIndex(
+          (c) => c._id === channel
+        );
+        for (const msg of messages) {
+          const messageIndex = state.data[channelIndex].messages.findIndex(
+            (m) => m._id === msg.id
+          );
+          if (messageIndex >= 0) {
+            const receiverIndex = state.data[channelIndex].messages[
+              messageIndex
+            ].info.findIndex((r) => r.receiverId === receiver);
+
+            if (type === "delivered") {
+              state.data[channelIndex].messages[messageIndex].info[
+                receiverIndex
+              ].deliveredDate = date;
+            } else {
+              state.data[channelIndex].messages[messageIndex].info[
+                receiverIndex
+              ].readDate = date;
+            }
+          }
+        }
+      }
+
+      /* const { channelId, messageId, receiverId, ack } = action.payload;
       const channelIndex = state.data.findIndex(
         (channel) => channel._id === channelId
       );
@@ -81,7 +93,7 @@ export const channelSlice = createSlice({
         ].readDate = action.payload.readDate;
       } else {
         console.error("ACK type error.");
-      }
+      } */
     },
   },
 });
@@ -94,7 +106,7 @@ export const {
   setMessages,
   addMessage,
   setRecipients,
-  setReaded,
+  // setReaded,
   setAcknowledge,
 } = channelSlice.actions;
 

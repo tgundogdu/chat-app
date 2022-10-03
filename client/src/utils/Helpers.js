@@ -10,34 +10,53 @@ class Helpers {
     return errorObj;
   };
 
-  /* static messageInfoHandler = (msg) => {
-    const sender = msg.sender._id || msg.sender;
-    const sent = 0;
-    const delivered = 0;
-    const read = 0;
-    const total = msg.info.length;
+  static normalizeData = (key, data) => {
+    let newData = {};
+    try {
+      data.forEach((item) => {
+        newData[item[key]] = item;
+      });
+    } catch (error) {
+      throw new Error("Data normalized error");
+    }
 
-    for (const receiver of msg.info) {
-      if (receiver.receiverId !== sender) {
-        if (msg.info.sentDate) {
-          sent++;
-        }
-        if (msg.info.deliveredDate) {
-          delivered++;
-        }
-        if (msg.info.readDate) {
-          read++;
+    return newData;
+  };
+
+  static setReadAllMessages = (userId, messages, deepCopy = false) => {
+    const unreads = [];
+    let newMessages = [];
+    if (deepCopy){
+      newMessages = JSON.parse(JSON.stringify(messages))
+    }
+    else{
+      newMessages = messages
+    }
+    if (newMessages.length) {
+      for (let i = 0; i < newMessages.length; i++) {
+        if (newMessages[i].sender._id !== userId) {
+          const indis = newMessages[i].info.findIndex(
+            (receiver) =>
+              receiver.receiverId === userId && receiver.readDate === null
+          );
+          if (indis >= 0) {
+            const tmp = {
+              id: newMessages[i]._id,
+              sender: newMessages[i].sender._id
+            }
+            unreads.push(tmp);
+            newMessages[i].info[indis].readDate = new Date().toISOString();
+          }
         }
       }
     }
-    if (read === total) {
-      return "readed";
-    } else if (delivered === total) {
-      return "delivered";
-    } else {
-      return "sended";
-    }
-  }; */
+
+    return {
+      userId,
+      unreads,
+      messages: newMessages,
+    };
+  };
 }
 
 export default Helpers;

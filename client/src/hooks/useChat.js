@@ -7,6 +7,7 @@ import {
   setReaded,
 } from "../redux/features/channelSlice";
 import { ChannelServices } from "../services";
+import Helpers from "../utils/Helpers";
 import socketio from "../utils/socket";
 
 const useChat = (channelId) => {
@@ -17,12 +18,12 @@ const useChat = (channelId) => {
     return state.channel.data.find((item) => item._id === channelId);
   });
 
-  //send message and add to store
+  //send message and add to store and send with socket io
   const sendMessage = (msg) => {
     ChannelServices.sendMessage({ channel: channelId, message: msg })
       .then((response) => {
-        socketio.emit("new_message", response.data);
         dispatch(addMessage({ channelId: channelId, message: response.data }));
+        socketio.emit("new_message", response.data);
       })
       .catch((error) => {
         console.log("hataaa");
@@ -30,7 +31,7 @@ const useChat = (channelId) => {
   };
 
   //find all unread messages in this channel for this user and make them readed.
-  const makeReaded = (messages) => {
+  /*   const makeReaded = (messages) => {
     const unreadMessages = [];
     if (messages.length) {
       for (const msg of messages) {
@@ -61,21 +62,49 @@ const useChat = (channelId) => {
           console.log(error);
         });
     }
+  }; */
+
+  const sendBulkAcknowledge = (messages) => {
+    const acknowledge = {
+      type: "readed",
+      channel: channel._id,
+      receiver: userId,
+      messages: messages,
+    };
+
+    if (messages.length > 0) {
+      console.log("toplu ack gönderildi.");
+      socketio.emit("acknowledge_send", acknowledge);
+    }
   };
 
-  //load channel message when channelId change.
   useEffect(() => {
     if (!channel.loaded) {
       ChannelServices.getMessages(channelId)
         .then((response) => {
+          const msgObj = Helpers.setReadAllMessages(userId, response.data);
+          sendBulkAcknowledge(msgObj.unreads);
           dispatch(
-            setMessages({ channelId: channelId, messages: response.data })
+            setMessages({
+              channelId: channelId,
+              messages: msgObj.messages,
+            })
           );
-          makeReaded(response.data);
         })
         .catch((error) => {
+          console.log(error);
           toaster.danger("Chat messages cannot listed.");
         });
+    }
+    else{
+      const msgObj = Helpers.setReadAllMessages(userId, channel.messages, true);
+      sendBulkAcknowledge(msgObj.unreads);
+      dispatch(
+        setMessages({
+          channelId: channelId,
+          messages: msgObj.messages,
+        })
+      );
     }
   }, [channelId]);
 

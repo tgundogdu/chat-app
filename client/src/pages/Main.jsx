@@ -22,33 +22,39 @@ const Main = () => {
   }, []);
 
   useEffect(() => {
-    if (socketio.socket) {
-      //when a message received.
-      socketio.socket.on("message_received", (msg) => {
-        dispatch(addMessage({ channelId: msg.channel, message: msg }));
-        let ackObj = {
-          senderId: msg.sender,
-          messageId: msg._id,
-          channelId: msg.channel,
-          receiverId: userId,
-          ack: "delivered",
-        };
-        // acknowledge sended.
-        socketio.emit("acknowledge_receive", ackObj);
+    socketio.socket.on("message_received", (msg) => {
+      const acknowledge = {
+        type: "delivered",
+        channel: msg.channel,
+        receiver: userId,
+        messages: [{ id: msg._id, sender: msg.sender }],
+      };
 
-        // acknowledge send if the current channel equal to message channel.
-        if (msg.channel === currentChannelId) {
-          ackObj.ack = "readed";
-          socketio.emit("acknowledge_receive", ackObj);
-        }
-      });
+      socketio.emit("acknowledge_send", acknowledge);
 
-      // when an acknowledge received.
-      socketio.socket.on("acknowledge_send", (ackObj) => {
-        dispatch(setAcknowledge(ackObj));
-      });
-    }
-  }, [socketio.socket?.io]);
+      if (msg.channel === currentChannelId) {
+        setTimeout(() => {
+          socketio.emit("acknowledge_send", { ...acknowledge, type: "readed" });
+        }, 200);
+
+        const indis = msg.info.findIndex((r) => r.receiverId === userId);
+        if (indis >= 0) msg.info[indis].readDate = new Date().toISOString();
+      }
+
+      dispatch(addMessage({ channelId: msg.channel, message: msg }));
+    });
+
+    socketio.socket.on("acknowledge_receive", (ack) => {
+      //console.log(ack);
+      dispatch(setAcknowledge(ack));
+    });
+
+    return () => {
+      socketio.socket.off("connect");
+      socketio.socket.off("message_received");
+      socketio.socket.off("acknowledge_receive");
+    };
+  }, [currentChannelId]);
 
   return (
     <Pane

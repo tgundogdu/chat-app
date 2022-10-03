@@ -62,6 +62,40 @@ const deleteMessage = async (req, res) => {
   }
 };
 
+const updateMsgInfo = async (ack) => {
+  try {
+    //let currentDate = new Date();
+
+    if (ack.type === "delivered") {
+      console.log("delivered");
+      for (const msg of ack.messages) {
+        await Message.updateOne(
+          {
+            _id: msg.id,
+            info: { $elemMatch: { receiverId: ack.receiver } },
+          },
+          { $set: { "info.$.deliveredDate": new Date() } }
+        );
+      }
+    } else if (ack.type === "readed") {
+      console.log("readed");
+      for (const msg of ack.messages) {
+        await Message.updateOne(
+          {
+            _id: msg.id,
+            info: { $elemMatch: { receiverId: ack.receiver } },
+          },
+          { $set: { "info.$.readDate": new Date() } }
+        );
+      }
+    }
+
+    return true;
+  } catch (error) {
+    console.log(error);
+  }
+};
+
 const updateInfo = async (req, res) => {
   const { msgIds = [], type } = req.body;
   const { user_id } = req.user;
@@ -121,4 +155,12 @@ const deleteAll = async (req, res) => {
   }
 };
 
-export { getMessages, createMessage, deleteMessage, updateMessage, updateInfo, deleteAll };
+export {
+  getMessages,
+  createMessage,
+  deleteMessage,
+  updateMessage,
+  updateInfo,
+  deleteAll,
+  updateMsgInfo,
+};

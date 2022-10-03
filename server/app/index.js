@@ -2,6 +2,7 @@ import http from "http";
 import app from "./app.js";
 import { Server } from "socket.io";
 import jwt from "jsonwebtoken";
+import { updateMsgInfo } from "./controllers/message.js";
 
 const { PORT } = process.env;
 const port = process.env.PORT || PORT;
@@ -51,24 +52,28 @@ io.on("connection", (socket) => {
     receivers.forEach((receiver) => {
       const receiverSocketId = global.users[receiver.receiverId];
       if (receiverSocketId && senderId !== receiver.receiverId) {
-        //user online and not the sender. send message this user.
         io.to(receiverSocketId).emit("message_received", messageObj);
       }
     });
   });
 
-  socket.on("acknowledge_receive", (ackObj) => {
-    const senderSocketId = global.users[ackObj.senderId];
-    if (senderSocketId){
-      if (ackObj.ack === "delivered"){
-        ackObj.deliveredDate = new Date();
-      }
-      else if (ackObj.ack === "readed"){
-        ackObj.readDate = new Date();
-      }
-      io.to(senderSocketId).emit("acknowledge_send", ackObj);
+  socket.on("acknowledge_send", (acknowledge) => {
+    // 1. eğer ack da mesaj varsa
+    if (acknowledge.messages.length >= 0) {
+      // 2. tüm mesajların 
+      updateMsgInfo(acknowledge);
+      
+      const ackDate = new Date().toISOString();
+      // 2. mesajlar lar kadar dön ve her alıcıya gönder
+      acknowledge.messages.forEach((msg) => {
+        const senderSocketId = global.users[msg.sender];
+        if (senderSocketId) {
+          acknowledge.date = ackDate;
+          io.to(senderSocketId).emit("acknowledge_receive", acknowledge);
+        }
+      });
     }
-  })
+  });
 
   /* socket.on("disconnect", () => {
     console.log("USER DISCONNECTED");
