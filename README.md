@@ -1,2 +1,2 @@
 # chat-app
-MERN Stack chat application
+Development continues...
